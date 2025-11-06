@@ -14,6 +14,10 @@
       text-align: center;
       color: #333;
     }
+    h2 {
+      margin-top: 30px;
+      color: #444;
+    }
     .menu {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -68,13 +72,58 @@
     .hapus-btn:hover {
       background: #c0392b;
     }
+
+    /* Popup (Modal) */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(-20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 8px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .modal-buttons {
+      margin-top: 15px;
+    }
+    .modal-buttons button {
+      margin: 0 8px;
+    }
   </style>
 </head>
 <body>
 
 <h1>🍽️ Kantin Sekolah</h1>
 
-<div class="menu" id="menu"></div>
+<h2>🍛 Makanan</h2>
+<div class="menu" id="menuMakanan"></div>
+
+<h2>🍹 Minuman</h2>
+<div class="menu" id="menuMinuman"></div>
 
 <div id="keranjang">
   <h2>🛒 Keranjang</h2>
@@ -82,38 +131,59 @@
     <tr><th>Menu</th><th>Harga</th><th>Aksi</th></tr>
   </table>
   <p id="total">Total: Rp 0</p>
-  <button onclick="pesan()">Pesan Sekarang</button>
+  <button onclick="bukaPopup()">Pesan Sekarang</button>
+</div>
+
+<!-- Popup Konfirmasi -->
+<div id="popup" class="modal">
+  <div class="modal-content">
+    <h3>Konfirmasi Pesanan</h3>
+    <p>Masukkan nama Anda untuk melanjutkan:</p>
+    <input type="text" id="namaInput" placeholder="Nama Anda">
+    <div class="modal-buttons">
+      <button onclick="konfirmasiPesan()">Kirim</button>
+      <button onclick="tutupPopup()">Batal</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  const menu = [
-    { nama: "Nasi Goreng", harga: 12000 },
-    { nama: "Mie Goreng", harga: 10000 },
-    { nama: "Nasi Uduk", harga: 8000 },
-    { nama: "Soto Ayam", harga: 15000 },
-    { nama: "Teh Manis", harga: 5000 },
-    { nama: "Es Jeruk", harga: 6000 },
-    { nama: "Susu Coklat", harga: 7000 }
+  const makanan = [
+    { nama: "Nasi Goreng Spesial", harga: 10000 },
+    { nama: "Mie Goreng", harga: 8000 },
+    { nama: "Nasi Uduk", harga: 9000 },
+    { nama: "Sosis Bakar", harga: 5000 },
+    { nama: "Roti Bakar", harga: 6000 },
+    { nama: "Bakso", harga: 10000 }
+  ];
+
+  const minuman = [
+    { nama: "Teh Manis Dingin / Panas", harga: 4000 },
+    { nama: "Es Jeruk Segar", harga: 5000 },
+    { nama: "Susu Coklat", harga: 6000 },
+    { nama: "Air Mineral", harga: 3000 },
+    { nama: "Jus Alpukat", harga: 8000 },
+    { nama: "Kopi Hitam", harga: 5000 }
   ];
 
   let keranjang = [];
 
-  function tampilkanMenu() {
-    const menuDiv = document.getElementById("menu");
-    menu.forEach((item, index) => {
+  function tampilkanMenu(list, idTarget) {
+    const menuDiv = document.getElementById(idTarget);
+    list.forEach((item, index) => {
       const div = document.createElement("div");
       div.classList.add("item");
       div.innerHTML = `
         <h3>${item.nama}</h3>
         <p>Rp ${item.harga.toLocaleString()}</p>
-        <button onclick="tambahKeKeranjang(${index})">Tambah</button>
+        <button onclick="tambahKeKeranjang('${item.nama}', ${item.harga})">Tambah</button>
       `;
       menuDiv.appendChild(div);
     });
   }
 
-  function tambahKeKeranjang(i) {
-    keranjang.push(menu[i]);
+  function tambahKeKeranjang(nama, harga) {
+    keranjang.push({ nama, harga });
     perbaruiKeranjang();
   }
 
@@ -140,19 +210,34 @@
     document.getElementById("total").textContent = "Total: Rp " + total.toLocaleString();
   }
 
-  function pesan() {
+  // === POPUP SYSTEM ===
+  function bukaPopup() {
     if (keranjang.length === 0) {
       alert("Keranjang masih kosong!");
       return;
     }
-    let nama = prompt("Masukkan nama Anda:");
-    if (!nama) return;
+    document.getElementById("popup").style.display = "flex";
+  }
+
+  function tutupPopup() {
+    document.getElementById("popup").style.display = "none";
+    document.getElementById("namaInput").value = "";
+  }
+
+  function konfirmasiPesan() {
+    const nama = document.getElementById("namaInput").value.trim();
+    if (!nama) {
+      alert("Nama tidak boleh kosong!");
+      return;
+    }
     alert(`Terima kasih, ${nama}! Pesanan Anda sudah diterima.`);
     keranjang = [];
     perbaruiKeranjang();
+    tutupPopup();
   }
 
-  tampilkanMenu();
+  tampilkanMenu(makanan, "menuMakanan");
+  tampilkanMenu(minuman, "menuMinuman");
 </script>
 
 </body>
