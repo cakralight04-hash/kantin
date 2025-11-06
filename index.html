@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Sistem Pemesanan Kantin Sekolah</title>
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    h1 { text-align: center; }
+    .menu { display: flex; flex-wrap: wrap; gap: 15px; }
+    .item {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      width: 160px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .item button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .item button:hover {
+      background: #45a049;
+    }
+    #cart {
+      margin-top: 30px;
+      padding: 15px;
+      border-top: 2px solid #ddd;
+    }
+    input, button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🍴 Pemesanan Kantin Sekolah</h1>
+
+  <div class="menu">
+    <div class="item"><strong>Nasi Goreng</strong><br>Rp10.000<br><button onclick="addToCart('Nasi Goreng',10000)">Tambah</button></div>
+    <div class="item"><strong>Mie Goreng</strong><br>Rp8.000<br><button onclick="addToCart('Mie Goreng',8000)">Tambah</button></div>
+    <div class="item"><strong>Nasi Uduk</strong><br>Rp9.000<br><button onclick="addToCart('Nasi Uduk',9000)">Tambah</button></div>
+    <div class="item"><strong>Bakso</strong><br>Rp10.000<br><button onclick="addToCart('Bakso',10000)">Tambah</button></div>
+    <div class="item"><strong>Es Jeruk</strong><br>Rp5.000<br><button onclick="addToCart('Es Jeruk',5000)">Tambah</button></div>
+    <div class="item"><strong>Teh Manis</strong><br>Rp4.000<br><button onclick="addToCart('Teh Manis',4000)">Tambah</button></div>
+  </div>
+
+  <div id="cart">
+    <h3>🛒 Keranjang Pesanan</h3>
+    <ul id="cartList"></ul>
+    <p><strong>Total: Rp<span id="total">0</span></strong></p>
+    <label>Nama: </label><input type="text" id="name"><br>
+    <label>Kelas: </label><input type="text" id="class"><br>
+    <button onclick="submitOrder()">Pesan Sekarang</button>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    let total = 0;
+    let cart = [];
+
+    function addToCart(item, price) {
+      cart.push({item, price});
+      total += price;
+      updateCart();
+    }
+
+    function updateCart() {
+      const list = document.getElementById('cartList');
+      list.innerHTML = '';
+      cart.forEach(c => {
+        const li = document.createElement('li');
+        li.textContent = c.item + ' - Rp' + c.price.toLocaleString();
+        list.appendChild(li);
+      });
+      document.getElementById('total').textContent = total.toLocaleString();
+    }
+
+    function submitOrder() {
+      const name = document.getElementById('name').value;
+      const cls = document.getElementById('class').value;
+      if (!name || !cls || cart.length === 0) {
+        alert('Lengkapi data dan pilih menu terlebih dahulu!');
+        return;
+      }
+      let orderText = 'Pesanan atas nama ' + name + ' (' + cls + '):\n';
+      cart.forEach(c => orderText += '- ' + c.item + ' Rp' + c.price.toLocaleString() + '\n');
+      orderText += '\nTotal: Rp' + total.toLocaleString();
+      document.getElementById('message').textContent = 'Pesanan berhasil dikirim!';
+      alert(orderText);
+    }
+  </script>
+
+</body>
+</html>
